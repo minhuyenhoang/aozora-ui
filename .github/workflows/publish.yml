@@ -7,9 +7,11 @@ on:
   # Lets the workflow be started by hand from the Actions tab.
   workflow_dispatch:
 
-# Publishing uses the npm token, so the workflow only needs to read the code.
+# Publishing uses the npm token. pnpm also uses GitHub OIDC to generate package
+# provenance, so the job must be allowed to request an identity token.
 permissions:
   contents: read
+  id-token: write
 
 # Never publishes the same package twice at once.
 concurrency:
@@ -49,6 +51,11 @@ jobs:
             echo "The tag $GITHUB_REF_NAME does not match package.json ($version)."
             exit 1
           fi
+
+      - name: Verify npm authentication
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # Publishing runs `prepublishOnly` (type check and lint) and `prepack`
       # (build) first, so a broken package is not published.
