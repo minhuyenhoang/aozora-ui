@@ -1,0 +1,330 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./theme.css";
+
+@import "@1771technologies/lytenyte-core/grid-full.css";
+@import "@1771technologies/lytenyte-core/light-dark.css";
+
+@import "react-advanced-cropper/dist/style.css";
+
+@plugin "tailwindcss-react-aria-components";
+
+/*
+ * Sheet animations. React Aria runs them by name, tied to how far a sheet has
+ * been swiped, so each one goes from the closed state to the open state.
+ */
+@keyframes sheet-backdrop {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Moves a sheet back while another sheet opens on top of it. */
+@keyframes sheet-scale-back {
+  to {
+    transform: translate(var(--sheet-stack-x, 0), var(--sheet-stack-y, 0))
+      scale(0.96);
+  }
+}
+
+@utility touch-target {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    min-height: 44px;
+    min-width: 44px;
+    z-index: 9999;
+  }
+}
+
+@utility transition-inherit-all {
+  transition-property: inherit;
+  transition-duration: inherit;
+  transition-timing-function: inherit;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border-primary, currentColor);
+  }
+}
+
+@layer base {
+  * {
+    text-rendering: optimizeLegibility;
+    /*
+     * Scrollbar
+     */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  html,
+  body {
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-variant-ligatures: contextual;
+    font-variant-ligatures: contextual;
+    -webkit-font-kerning: normal;
+    font-kerning: normal;
+    background-color: var(--color-body);
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  /* Hide the default expand arrow on Safari.  */
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* Hide default arrows from number inputs. */
+  /* Chrome, Safari, Edge, Opera */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* Hide the default clear button (X) from search inputs. */
+  input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+}
+
+:root {
+  --ln-gray-00: var(--color-bg-primary);
+  /* White in light, slate-900 in dark */
+  --ln-gray-01: var(--color-bg-primary_alt);
+  /* White in light, slate-800 in dark */
+  --ln-gray-02: var(--color-utility-slate-50);
+  /* slate-50  <-> slate-950 */
+  --ln-gray-05: var(--color-utility-slate-100);
+  /* slate-100 <-> slate-900 */
+  --ln-gray-10: var(--color-utility-slate-100);
+  /* slate-100 <-> slate-900 */
+  --ln-gray-20: var(--color-utility-slate-200);
+  /* slate-200 <-> slate-800 */
+  --ln-gray-30: var(--color-utility-slate-300);
+  /* slate-300 <-> slate-700 */
+  --ln-gray-40: var(--color-utility-slate-400);
+  /* slate-400 <-> slate-600 */
+  --ln-gray-50: var(--color-utility-slate-500);
+  /* slate-500 <-> slate-500 */
+  --ln-gray-60: var(--color-utility-slate-600);
+  /* slate-600 <-> slate-400 */
+  --ln-gray-70: var(--color-utility-slate-700);
+  /* slate-700 <-> slate-300 */
+  --ln-gray-80: var(--color-utility-slate-800);
+  /* slate-800 <-> slate-200 */
+  --ln-gray-90: var(--color-utility-slate-900);
+  /* slate-900 <-> slate-100 */
+  --ln-gray-100: var(--color-text-primary);
+  /* slate-900 <-> slate-50 */
+
+  /* Core Layout & App Surface Backgrounds */
+  --ln-bg: var(--color-bg-primary);
+  --ln-bg-page: var(--color-body);
+  --ln-bg-light: var(--color-bg-tertiary);
+  --ln-bg-strong: var(--color-bg-quaternary);
+  --ln-bg-ui-panel: var(--color-body);
+  --ln-bg-floating-panel: var(--color-bg-primary_alt);
+  --ln-bg-popover: var(--color-bg-primary);
+
+  /* Interactive States (Row Hover and Zebra Stripes) */
+  --ln-bg-row-hover: hsla(226, 10%, 40%, 0.04);
+  --ln-bg-row-alternate: var(--ln-gray-01);
+
+  /* Typography Overrides */
+  --ln-text: var(--ln-gray-80);
+  --ln-text-dark: var(--ln-gray-90);
+  --ln-text-light: var(--ln-gray-70);
+  --ln-text-xlight: var(--ln-gray-60);
+  --ln-text-hyperlink: var(--ln-primary-50);
+  --ln-text-primary-button: hsla(0, 0%, 100%, 1);
+
+  /* Structural Borders */
+  --ln-border: var(--color-border-secondary);
+  --ln-border-row: var(--color-border-tertiary);
+  --ln-border-strong: var(--color-border-primary);
+  --ln-border-xstrong: var(--color-border-secondary_alt);
+  --ln-border-ui-panel: var(--color-border-tertiary);
+  --ln-border-floating-panel: var(--color-border-primary);
+  --ln-border-popover: var(--color-border-primary);
+
+  /* Form Fields & Operation Controls */
+  --ln-bg-form-field: var(--color-bg-primary);
+  --ln-border-field-and-button: var(--color-border-primary);
+  --ln-bg-button-light: var(--color-bg-primary);
+  --ln-border-button-light: var(--color-border-secondary);
+  --ln-text-primary-button: var(--color-text-white);
+
+  /* System Status Alerts Mapping */
+  --ln-red-10: var(--color-bg-destructive-primary);
+  --ln-red-50: var(--color-fg-destructive-primary);
+  --ln-red-70: var(--color-text-destructive-primary);
+
+  --ln-yellow-10: var(--color-bg-warning-primary);
+  --ln-yellow-50: var(--color-fg-warning-primary);
+  --ln-yellow-70: var(--color-text-warning-primary);
+
+  --ln-green-10: var(--color-bg-success-primary);
+  --ln-green-50: var(--color-fg-success-primary);
+  --ln-green-70: var(--color-text-success-primary);
+
+  /* Accent & Brand Primary Overrides (Mapped directly to your Sky palette) */
+  --ln-primary-10: rgb(14 165 233 / 0.1);
+  --ln-primary-30: rgb(14 165 233 / 0.3);
+  --ln-primary-50: var(--color-brand-500);
+  --ln-primary-70: var(--color-brand-700);
+  --ln-primary-90: var(--color-brand-900);
+
+  /* --ln-padding-field-sm: 2px;
+    --ln-padding-field-md: 4px;
+    --ln-padding-field-lg: 6px;
+    --ln-padding-field-xl: 10px;
+    --ln-padding-vertical-thead: 2px;
+    --ln-padding-vertical-cell: 4px;
+    --ln-padding-horizontal-cell: 8px; */
+}
+
+.dark,
+[class*="dark"] {
+  /* Core Dark Layout & App Surface Backgrounds */
+  --ln-bg: var(--color-bg-primary);
+  --ln-bg-page: var(--color-body);
+  --ln-bg-light: var(--color-bg-tertiary);
+  --ln-bg-strong: var(--color-bg-quaternary);
+  --ln-bg-ui-panel: var(--color-body);
+  --ln-bg-floating-panel: var(--color-bg-primary_alt);
+  --ln-bg-popover: var(--color-bg-primary);
+
+  /* Dark Mode Interactive States */
+  --ln-bg-row-alternate: var(--ln-gray-05);
+
+  /* Dark Mode Typography */
+  --ln-text: var(--ln-gray-80);
+  --ln-text-dark: var(--ln-gray-90);
+  --ln-text-light: var(--ln-gray-70);
+  --ln-text-xlight: var(--ln-gray-60);
+  --ln-text-hyperlink: var(--ln-primary-50);
+  --ln-text-primary-button: hsla(0, 0%, 100%, 1);
+
+  /* Dark Mode Structural Borders */
+  --ln-border: var(--color-border-secondary);
+  --ln-border-row: var(--color-border-tertiary);
+  --ln-border-strong: var(--color-border-primary);
+  --ln-border-xstrong: var(--color-border-secondary_alt);
+  --ln-border-ui-panel: var(--color-border-tertiary);
+  --ln-border-floating-panel: var(--color-border-primary);
+  --ln-border-popover: var(--color-border-primary);
+
+  /* Form Fields & Dark Component States */
+  --ln-bg-form-field: var(--color-bg-primary);
+  --ln-border-field-and-button: var(--color-border-primary);
+  --ln-bg-button-light: var(--color-bg-secondary);
+  --ln-border-button-light: var(--color-border-secondary);
+
+  /* Dark Mode Primary Accents (Inverting Sky Palette boundaries cleanly) */
+  --ln-primary-50: var(--color-brand-400);
+  --ln-primary-70: var(--color-brand-600);
+  --ln-primary-90: var(--color-brand-800);
+}
+
+.react-aria-DropIndicator[data-drop-target] {
+  outline: 1px solid var(--primary);
+  transform: translateZ(0);
+}
+
+.react-loading-skeleton {
+  --base-color: var(--color-bg-secondary);
+  --hightlight-color: var(--color-bg-quaternary);
+}
+
+.sidebar {
+  transform: translateX(0);
+  transition:
+    transform 0.2s linear,
+    z-index 0.2s linear;
+  will-change: transform, z-index;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.main,
+.section {
+  transform-origin: 100% center;
+  transition: transform 0.2s linear;
+  display: inline-flex;
+  align-items: stretch;
+  justify-content: space-evenly;
+}
+
+.main {
+  transform: translateX(240px);
+  width: calc(100vw - 15rem);
+  height: 100%;
+  position: fixed;
+  top: 0;
+}
+
+.main.full {
+  width: 100vw;
+  transform: translateX(0);
+}
+
+.section {
+  transform: translateX(0px);
+  transition:
+    transform 0.2s linear,
+    width 0.2s linear;
+  width: calc(100% - 16rem);
+}
+
+.section > .ln-grid {
+  width: 100%;
+  min-width: 0;
+}
+
+.section.full {
+  transform: translateX(-255px);
+  width: 100%;
+}

@@ -1,0 +1,58 @@
+name: Publish to npm
+
+on:
+  # Publishes when a release is published on GitHub.
+  release:
+    types: [published]
+  # Lets the workflow be started by hand from the Actions tab.
+  workflow_dispatch:
+
+# Publishing uses the npm token, so the workflow only needs to read the code.
+permissions:
+  contents: read
+
+# Never publishes the same package twice at once.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          # Points the publish step at the npm registry. pnpm installs from
+          # this same registry, so one publish serves npm and pnpm users.
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # A release tagged v1.2.3 must match version 1.2.3 in package.json.
+      - name: Check the release tag matches the package version
+        if: github.event_name == 'release'
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
+            echo "The tag $GITHUB_REF_NAME does not match package.json ($version)."
+            exit 1
+          fi
+
+      # Publishing runs `prepublishOnly` (type check and lint) and `prepack`
+      # (build) first, so a broken package is not published.
+      - name: Publish
+        run: pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

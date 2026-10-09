@@ -1,0 +1,269 @@
+import { type FC, type RefAttributes, useCallback } from "react";
+import {
+  IconCheck,
+  IconChevronRight,
+  IconDotsVertical,
+} from "@tabler/icons-react";
+import type {
+  ButtonProps as AriaButtonProps,
+  MenuItemProps as AriaMenuItemProps,
+  MenuProps as AriaMenuProps,
+  PopoverProps as AriaPopoverProps,
+  MenuItemRenderProps,
+} from "react-aria-components";
+import {
+  Button as AriaButton,
+  Header as AriaHeader,
+  Menu as AriaMenu,
+  MenuItem as AriaMenuItem,
+  MenuSection as AriaMenuSection,
+  MenuTrigger as AriaMenuTrigger,
+  Popover as AriaPopover,
+} from "react-aria-components";
+import { cx } from "@styles/utils";
+import { Avatar } from "../media/avatar/Avatar";
+import { Checkbox } from "../control/Checkbox";
+import { Toggle } from "../control/Toggle";
+
+interface MenuItemProps extends AriaMenuItemProps {
+  /** The label of the item to be displayed. */
+  label?: string;
+  /** An addon to be displayed on the right side of the item. */
+  addon?: string;
+  /** If true, the item will not have any styles. */
+  unstyled?: boolean;
+  /** An icon to be displayed on the left side of the item. */
+  icon?: FC<{ className?: string }>;
+  /** Avatar URL to be displayed on the left side of the item. */
+  avatarUrl?: string;
+  /** The selection indicator to be displayed on the item. */
+  selectionIndicator?: "checkmark" | "checkbox" | "radio" | "toggle" | "none";
+}
+
+const MenuItem = ({
+  label,
+  children,
+  addon,
+  icon: Icon,
+  avatarUrl,
+  unstyled,
+  selectionIndicator = "checkmark",
+  ...props
+}: MenuItemProps) => {
+  const SelectionIndicator = useCallback(
+    (state: MenuItemRenderProps & { className?: string }) => {
+      if (selectionIndicator === "checkmark") {
+        return (
+          <IconCheck
+            aria-hidden="true"
+            className={cx(
+              "size-4 shrink-0 stroke-[2.25px] text-fg-brand-primary",
+              !state.isSelected && "invisible",
+              state.className,
+            )}
+          />
+        );
+      }
+      if (selectionIndicator === "checkbox") {
+        return (
+          <Checkbox
+            isSelected={state.isSelected && !state.hasSubmenu}
+            isIndeterminate={state.isSelected && state.hasSubmenu}
+            size="sm"
+            className={cx("shrink-0", state.className)}
+          />
+        );
+      }
+      if (selectionIndicator === "radio") {
+        return (
+          <div
+            aria-hidden="true"
+            className={cx(
+              "flex size-4 shrink-0 items-center justify-center rounded-full bg-primary ring-1 ring-primary ring-inset",
+              state.isSelected && "bg-brand-solid ring-brand-solid",
+              state.isDisabled && "opacity-50",
+              state.className,
+            )}
+          >
+            <div
+              className={cx(
+                "size-1.5 rounded-full bg-fg-white opacity-0 transition-inherit-all",
+                state.isSelected && "opacity-100",
+              )}
+            />
+          </div>
+        );
+      }
+      if (selectionIndicator === "toggle") {
+        return (
+          <Toggle
+            slim
+            size="sm"
+            isSelected={state.isSelected}
+            className={cx("shrink-0", state.className)}
+          />
+        );
+      }
+      return null;
+    },
+    [selectionIndicator],
+  );
+
+  if (unstyled) {
+    return <AriaMenuItem id={label} textValue={label} {...props} />;
+  }
+
+  return (
+    <AriaMenuItem
+      {...props}
+      className={(state) =>
+        cx(
+          "group block cursor-pointer px-1.5 py-px outline-hidden",
+          state.isDisabled && "cursor-not-allowed opacity-50",
+          typeof props.className === "function"
+            ? props.className(state)
+            : props.className,
+        )
+      }
+    >
+      {(state) => (
+        <div
+          className={cx(
+            "relative flex items-center rounded-md px-2.5 py-2 outline-focus-ring transition duration-100 ease-linear",
+            !state.isDisabled && "group-hover:bg-primary_hover",
+            state.isFocused && "bg-primary_hover",
+            state.isFocusVisible && "outline-2 -outline-offset-2",
+            state.hasSubmenu && "pr-1.5",
+          )}
+        >
+          {state.selectionMode !== "none" && !avatarUrl && !Icon && (
+            <SelectionIndicator {...state} className="mr-2" />
+          )}
+
+          {avatarUrl && (
+            <div className="mr-2 flex size-4 items-center justify-center">
+              <Avatar
+                aria-hidden="true"
+                size="xs"
+                src={avatarUrl}
+                alt={label}
+                className="size-5"
+              />
+            </div>
+          )}
+
+          {Icon && (
+            <Icon
+              aria-hidden="true"
+              className="mr-2 size-4 shrink-0 stroke-[2.25px] text-fg-quaternary"
+            />
+          )}
+
+          <span
+            className={cx(
+              "grow truncate text-sm font-semibold text-secondary",
+              state.isFocused && "text-secondary_hover",
+            )}
+          >
+            {label ||
+              (typeof children === "function" ? children(state) : children)}
+          </span>
+
+          {addon && (
+            <span className="ml-1 shrink-0 pr-1 text-xs font-medium text-quaternary">
+              {addon}
+            </span>
+          )}
+
+          {state.selectionMode !== "none" && (avatarUrl || Icon) && (
+            <SelectionIndicator {...state} className="ml-1" />
+          )}
+
+          {state.hasSubmenu && (
+            <IconChevronRight
+              aria-hidden="true"
+              className="ml-auto size-4 shrink-0 stroke-[2.25px] text-fg-quaternary"
+            />
+          )}
+        </div>
+      )}
+    </AriaMenuItem>
+  );
+};
+
+type MenuDropdownProps<T extends object> = AriaMenuProps<T>;
+
+const MenuDropdown = <T extends object>(props: MenuDropdownProps<T>) => {
+  return (
+    <AriaMenu
+      {...props}
+      className={(state) =>
+        cx(
+          "h-min overflow-y-auto py-1 outline-hidden select-none",
+          typeof props.className === "function"
+            ? props.className(state)
+            : props.className,
+        )
+      }
+    />
+  );
+};
+
+type MenuPopoverProps = AriaPopoverProps;
+
+const MenuPopover = (props: MenuPopoverProps) => {
+  return (
+    <AriaPopover
+      placement="bottom right"
+      {...props}
+      className={(state) =>
+        cx(
+          "w-62 origin-(--trigger-anchor-point) overflow-auto rounded-lg bg-primary shadow-lg ring-1 ring-secondary_alt will-change-transform",
+          state.isEntering &&
+            "duration-150 ease-out animate-in fade-in placement-right:slide-in-from-left-0.5 placement-top:slide-in-from-bottom-0.5 placement-bottom:slide-in-from-top-0.5",
+          state.isExiting &&
+            "duration-100 ease-in animate-out fade-out placement-right:slide-out-to-left-0.5 placement-top:slide-out-to-bottom-0.5 placement-bottom:slide-out-to-top-0.5",
+          typeof props.className === "function"
+            ? props.className(state)
+            : props.className,
+        )
+      }
+    >
+      {props.children}
+    </AriaPopover>
+  );
+};
+
+const MenuDotsButton = (
+  props: AriaButtonProps & RefAttributes<HTMLButtonElement>,
+) => {
+  return (
+    <AriaButton
+      {...props}
+      aria-label="Open menu"
+      className={(state) =>
+        cx(
+          "cursor-pointer rounded-md text-fg-quaternary outline-focus-ring transition duration-100 ease-linear",
+          (state.isPressed || state.isHovered) && "text-fg-quaternary_hover",
+          (state.isPressed || state.isFocusVisible) &&
+            "outline-2 outline-offset-2",
+          typeof props.className === "function"
+            ? props.className(state)
+            : props.className,
+        )
+      }
+    >
+      <IconDotsVertical className="size-5 transition-inherit-all" />
+    </AriaButton>
+  );
+};
+
+export const Menu = {
+  Root: AriaMenuTrigger,
+  Popover: MenuPopover,
+  Menu: MenuDropdown,
+  Section: AriaMenuSection,
+  SectionHeader: AriaHeader,
+  Item: MenuItem,
+  DotsButton: MenuDotsButton,
+};

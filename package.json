@@ -1,0 +1,101 @@
+{
+  "name": "aozora-ui",
+  "version": "0.1.0",
+  "description": "Accessible React components built with React Aria, Tailwind CSS, and Untitled UI design.",
+  "author": "Uyen Hoang",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "style": "./dist/styles.css",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "keywords": [
+    "react",
+    "components",
+    "design-system",
+    "react-aria",
+    "tailwindcss",
+    "typescript"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && npm run build:types",
+    "build:types": "tsc -p tsconfig.build.json",
+    "check": "tsc -b --pretty false && npm run lint",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "prepare": "husky",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run check"
+  },
+  "dependencies": {
+    "@1771technologies/lytenyte-core": "^2.2.1",
+    "@internationalized/date": "^3.12.4",
+    "@tabler/icons-react": "^3.48.0",
+    "@tiptap/core": "^3.31.4",
+    "@tiptap/extension-image": "^3.31.4",
+    "@tiptap/extension-placeholder": "^3.31.4",
+    "@tiptap/extension-text-align": "^3.31.4",
+    "@tiptap/pm": "^3.31.4",
+    "@tiptap/react": "^3.31.4",
+    "@tiptap/starter-kit": "^3.31.4",
+    "input-otp": "^1.5.0",
+    "react-advanced-cropper": "^0.20.1",
+    "react-aria": "^3.52.1",
+    "react-aria-components": "^1.22.0",
+    "react-stately": "^3.50.0",
+    "sonner": "^2.0.8",
+    "tailwind-merge": "^3.7.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "latest",
+    "@storybook/addon-a11y": "^10.6.1",
+    "@storybook/addon-docs": "^10.6.1",
+    "@storybook/addon-vitest": "^10.6.1",
+    "@storybook/react-vite": "^10.6.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "@vitest/browser-playwright": "latest",
+    "@vitest/coverage-v8": "latest",
+    "husky": "^9.1.7",
+    "oxlint": "^1.81.0",
+    "playwright": "latest",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "storybook": "^10.6.1",
+    "tailwindcss": "^4.3.3",
+    "tailwindcss-react-aria-components": "^2.2.0",
+    "tw-animate-css": "^1.4.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vitest": "latest"
+  }
+}
