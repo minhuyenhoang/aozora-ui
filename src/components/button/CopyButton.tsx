@@ -8,7 +8,13 @@ export function CopyButton({ text }: { text: string }) {
   return (
     <Button
       color="tertiary"
-      iconLeading={copied ? IconCheck : IconCopy}
+      iconLeading={
+        copied ? (
+          <IconCheck data-icon="leading" className="text-success-primary!" />
+        ) : (
+          IconCopy
+        )
+      }
       onClick={() => copy(text)}
     />
   );

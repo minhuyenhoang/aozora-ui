@@ -52,7 +52,7 @@ function SelectionCheckbox({
     <div
       aria-hidden="true"
       className={cx(
-        "relative flex size-4 shrink-0 items-center justify-center rounded bg-primary ring-1 ring-primary ring-inset",
+        "relative flex size-4 shrink-0 items-center justify-center rounded bg-primary ring-1 ring-primary ring-inset *:data-icon:text-success-primary",
         size === "md" && "size-5 rounded-md",
         isSelected && "bg-brand-solid ring-brand-solid",
         isDisabled && "opacity-50",

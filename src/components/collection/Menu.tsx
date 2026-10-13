@@ -57,7 +57,7 @@ const MenuItem = ({
           <IconCheck
             aria-hidden="true"
             className={cx(
-              "size-4 shrink-0 stroke-[2.25px] text-fg-brand-primary",
+              "size-4 shrink-0 stroke-[2.25px] text-success-primary",
               !state.isSelected && "invisible",
               state.className,
             )}
