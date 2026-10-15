@@ -16,6 +16,9 @@ const meta = {
     label: { control: "text" },
     description: { control: "text" },
     size: { control: "select", options: ["sm", "md"] },
+    isSelected: { control: "boolean" },
+    isIndeterminate: { control: "boolean" },
+    isDisabled: { control: "boolean" },
   },
 } satisfies Meta<typeof Checkbox>;
 
@@ -25,26 +28,37 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const checkbox = canvas.getByRole("checkbox", { name: /Remember me/ });
+    // The label alone names the checkbox, the description describes it.
+    const checkbox = canvas.getByRole("checkbox", { name: "Remember me" });
 
     await expect(checkbox).not.toBeChecked();
-    await expect(
-      canvas.getByText("Save my login details for next time."),
-    ).toBeVisible();
+    await expect(checkbox).toHaveAccessibleDescription(
+      "Save my login details for next time.",
+    );
 
     // Clicking the label toggles it, and so does Space.
     await userEvent.click(canvas.getByText("Remember me"));
     await expect(checkbox).toBeChecked();
     await userEvent.keyboard(" ");
     await expect(checkbox).not.toBeChecked();
+
+    // The description is part of the clickable area too.
+    await userEvent.click(
+      canvas.getByText("Save my login details for next time."),
+    );
+    await expect(checkbox).toBeChecked();
   },
+};
+
+export const Medium: Story = {
+  args: { size: "md" },
 };
 
 export const Selected: Story = {
   args: { defaultSelected: true },
   play: async ({ canvasElement }) => {
     const checkbox = within(canvasElement).getByRole("checkbox", {
-      name: /Remember me/,
+      name: "Remember me",
     });
 
     await expect(checkbox).toBeChecked();
@@ -57,7 +71,7 @@ export const Indeterminate: Story = {
   args: { isIndeterminate: true },
   play: async ({ canvasElement }) => {
     await expect(
-      within(canvasElement).getByRole("checkbox", { name: /Remember me/ }),
+      within(canvasElement).getByRole("checkbox", { name: "Remember me" }),
     ).toBePartiallyChecked();
   },
 };
@@ -66,7 +80,7 @@ export const Disabled: Story = {
   args: { isDisabled: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const checkbox = canvas.getByRole("checkbox", { name: /Remember me/ });
+    const checkbox = canvas.getByRole("checkbox", { name: "Remember me" });
 
     await expect(checkbox).toBeDisabled();
 

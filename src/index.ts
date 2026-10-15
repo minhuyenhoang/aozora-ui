@@ -5,7 +5,7 @@ export * from "./components/media/avatar/state/AvatarAddButton";
 export * from "./components/media/avatar/state/AvatarAddCount";
 
 export * from "./components/button/Button";
-export * from "./components/button/CopyButton";
+export * from "./components/button/UtilityButton";
 export * from "./components/button/group/ButtonGroup";
 export * from "./components/button/group/ButtonGroupItem";
 

@@ -16,7 +16,7 @@ export function DataGridCopyableCell({
     >
       <span className="truncate min-w-0 flex-1">{field ?? "-"}</span>
 
-      {field ? <CopyButton text={field} /> : null}
+      {field ? <CopyButton size="sm" text={field} /> : null}
     </div>
   );
 }

@@ -16,6 +16,8 @@ const meta = {
   },
   argTypes: {
     size: { control: "select", options: ["sm", "md"] },
+    orientation: { control: "select", options: ["vertical", "horizontal"] },
+    isDisabled: { control: "boolean" },
   },
   render: (args) => (
     <RadioGroup {...args}>
@@ -32,23 +34,27 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const radio = (name: RegExp) => canvas.getByRole("radio", { name });
+    const radio = (name: string) => canvas.getByRole("radio", { name });
 
     await expect(
       canvas.getByRole("radiogroup", { name: "Notification method" }),
     ).toBeVisible();
     await expect(canvas.getAllByRole("radio")).toHaveLength(3);
-    await expect(radio(/Email/)).toBeChecked();
+    await expect(radio("Email")).toBeChecked();
 
     // Only one option is selected at a time.
-    await userEvent.click(radio(/SMS/));
-    await expect(radio(/SMS/)).toBeChecked();
-    await expect(radio(/Email/)).not.toBeChecked();
+    await userEvent.click(radio("SMS"));
+    await expect(radio("SMS")).toBeChecked();
+    await expect(radio("Email")).not.toBeChecked();
+
+    // The description is part of the clickable area too.
+    await userEvent.click(canvas.getByText("Get updates by email."));
+    await expect(radio("Email")).toBeChecked();
 
     // Arrow keys move the selection to the next option.
     await userEvent.keyboard("{ArrowDown}");
-    await expect(radio(/Do not notify me/)).toBeChecked();
-    await expect(radio(/Do not notify me/)).toHaveFocus();
+    await expect(radio("SMS")).toBeChecked();
+    await expect(radio("SMS")).toHaveFocus();
   },
 };
 
@@ -57,10 +63,29 @@ export const Medium: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByRole("radio", { name: /Email/ })).toBeChecked();
-    await userEvent.click(canvas.getByRole("radio", { name: /Do not notify me/ }));
+    // The group size applies to every radio.
+    await expect(canvas.getByText("Email")).toHaveClass("text-md");
+    await expect(canvas.getByRole("radio", { name: "Email" })).toBeChecked();
+    await userEvent.click(
+      canvas.getByRole("radio", { name: "Do not notify me" }),
+    );
     await expect(
-      canvas.getByRole("radio", { name: /Do not notify me/ }),
+      canvas.getByRole("radio", { name: "Do not notify me" }),
     ).toBeChecked();
+  },
+};
+
+export const Disabled: Story = {
+  args: { isDisabled: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    for (const radio of canvas.getAllByRole("radio")) {
+      await expect(radio).toBeDisabled();
+    }
+
+    // The selection cannot be changed.
+    await userEvent.click(canvas.getByText("SMS"), { pointerEventsCheck: 0 });
+    await expect(canvas.getByRole("radio", { name: "Email" })).toBeChecked();
   },
 };

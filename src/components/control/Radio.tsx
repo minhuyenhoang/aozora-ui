@@ -23,8 +23,7 @@ export function Radio({
   ...radioFieldProps
 }: RadioProps) {
   const context = useContext(RadioGroupContext);
-  const generatedId = useId();
-  const inputId = radioFieldProps.id ?? generatedId;
+  const labelId = useId();
 
   size = context?.size ?? size;
 
@@ -44,17 +43,30 @@ export function Radio({
   return (
     <AriaRadioField
       {...radioFieldProps}
-      id={inputId}
+      // Names the radio by its label alone. The description is inside the
+      // clickable area too, and would otherwise be read as part of the name.
+      aria-labelledby={
+        radioFieldProps["aria-labelledby"] ??
+        (label && !radioFieldProps["aria-label"] ? labelId : undefined)
+      }
       className={(state) =>
         cx(
-          "relative grid grid-cols-[auto_minmax(0,1fr)] items-start",
-          state.isDisabled ? "cursor-not-allowed" : "cursor-pointer",
-          sizes[size].root,
+          "relative",
           typeof className === "function" ? className(state) : className,
         )
       }
     >
-      <AriaRadioButton className="contents">
+      {/* The whole row is the clickable area: indicator, label and
+          description. */}
+      <AriaRadioButton
+        className={({ isDisabled }) =>
+          cx(
+            "grid grid-cols-[auto_minmax(0,1fr)] items-start",
+            isDisabled ? "cursor-not-allowed" : "cursor-pointer",
+            sizes[size].root,
+          )
+        }
+      >
         {({ isSelected, isDisabled, isFocusVisible }) => (
           <>
             <div
@@ -77,33 +89,34 @@ export function Radio({
                 )}
               />
             </div>
+
+            {label && (
+              <span
+                id={labelId}
+                className={cx(
+                  "col-start-2 row-start-1 text-secondary select-none",
+                  sizes[size].label,
+                )}
+              >
+                {label}
+              </span>
+            )}
+
+            {description && (
+              <AriaText
+                slot="description"
+                className={cx(
+                  "col-start-2 text-tertiary select-none",
+                  label ? "row-start-2" : "row-start-1",
+                  sizes[size].description,
+                )}
+              >
+                {description}
+              </AriaText>
+            )}
           </>
         )}
       </AriaRadioButton>
-      {label && (
-        <label
-          htmlFor={inputId}
-          className={cx(
-            "col-start-2 row-start-1 text-secondary select-none",
-            sizes[size].label,
-          )}
-        >
-          {label}
-        </label>
-      )}
-
-      {description && (
-        <AriaText
-          slot="description"
-          className={cx(
-            "col-start-2 text-tertiary",
-            label ? "row-start-2" : "row-start-1",
-            sizes[size].description,
-          )}
-        >
-          {description}
-        </AriaText>
-      )}
     </AriaRadioField>
   );
 }

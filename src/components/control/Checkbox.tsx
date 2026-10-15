@@ -22,8 +22,7 @@ export function Checkbox({
   className,
   ...checkboxFieldProps
 }: CheckboxProps) {
-  const generatedId = useId();
-  const inputId = checkboxFieldProps.id ?? generatedId;
+  const labelId = useId();
 
   const sizes = {
     sm: {
@@ -41,83 +40,93 @@ export function Checkbox({
   return (
     <AriaCheckboxField
       {...checkboxFieldProps}
-      id={inputId}
+      // Names the checkbox by its label alone. The description is inside the
+      // clickable area too, and would otherwise be read as part of the name.
+      aria-labelledby={
+        checkboxFieldProps["aria-labelledby"] ??
+        (label && !checkboxFieldProps["aria-label"] ? labelId : undefined)
+      }
       className={(state) =>
         cx(
-          "relative grid grid-cols-[auto_minmax(0,1fr)] items-start",
-          state.isDisabled ? "cursor-not-allowed" : "cursor-pointer",
-          sizes[size].root,
+          "relative",
           typeof className === "function" ? className(state) : className,
         )
       }
     >
+      {/* The whole row is the clickable area: indicator, label and
+          description. */}
       <AriaCheckboxButton
-        className={({
-          isSelected,
-          isIndeterminate,
-          isDisabled,
-          isFocusVisible,
-        }) =>
+        className={({ isDisabled }) =>
           cx(
-            "relative col-start-1 row-start-1 flex size-4 shrink-0 appearance-none items-center justify-center rounded bg-primary ring-1 ring-primary ring-inset",
-            size === "md" && "size-5 rounded-md",
-            (isSelected || isIndeterminate) &&
-              "bg-brand-solid ring-brand-solid",
-            isDisabled && "opacity-50",
-            isDisabled &&
-              !(isSelected || isIndeterminate) &&
-              "bg-tertiary",
-            isFocusVisible &&
-              "outline-2 outline-offset-2 outline-focus-ring",
-            (label || description) && "mt-0.5",
+            "grid grid-cols-[auto_minmax(0,1fr)] items-start",
+            isDisabled ? "cursor-not-allowed" : "cursor-pointer",
+            sizes[size].root,
           )
         }
       >
-        {({ isSelected, isIndeterminate }) =>
-          isIndeterminate ? (
-            <IconMinus
-              aria-hidden="true"
+        {({ isSelected, isIndeterminate, isDisabled, isFocusVisible }) => (
+          <>
+            <div
               className={cx(
-                "pointer-events-none size-3 text-fg-white",
-                size === "md" && "size-3.5",
+                "relative col-start-1 row-start-1 flex size-4 shrink-0 appearance-none items-center justify-center rounded bg-primary ring-1 ring-primary ring-inset",
+                size === "md" && "size-5 rounded-md",
+                (isSelected || isIndeterminate) &&
+                  "bg-brand-solid ring-brand-solid",
+                isDisabled && "opacity-50",
+                isDisabled &&
+                  !(isSelected || isIndeterminate) &&
+                  "bg-tertiary",
+                isFocusVisible &&
+                  "outline-2 outline-offset-2 outline-focus-ring",
+                (label || description) && "mt-0.5",
               )}
-            />
-          ) : isSelected ? (
-            <IconCheck
-              aria-hidden="true"
-              className={cx(
-                "pointer-events-none size-3 text-fg-white",
-                size === "md" && "size-3.5",
-              )}
-            />
-          ) : null
-        }
+            >
+              {isIndeterminate ? (
+                <IconMinus
+                  aria-hidden="true"
+                  className={cx(
+                    "pointer-events-none size-3 text-fg-white",
+                    size === "md" && "size-3.5",
+                  )}
+                />
+              ) : isSelected ? (
+                <IconCheck
+                  aria-hidden="true"
+                  className={cx(
+                    "pointer-events-none size-3 text-fg-white",
+                    size === "md" && "size-3.5",
+                  )}
+                />
+              ) : null}
+            </div>
+
+            {label && (
+              <span
+                id={labelId}
+                className={cx(
+                  "col-start-2 row-start-1 text-secondary select-none",
+                  sizes[size].label,
+                )}
+              >
+                {label}
+              </span>
+            )}
+
+            {description && (
+              <AriaText
+                slot="description"
+                className={cx(
+                  "col-start-2 text-tertiary select-none",
+                  label ? "row-start-2" : "row-start-1",
+                  sizes[size].description,
+                )}
+              >
+                {description}
+              </AriaText>
+            )}
+          </>
+        )}
       </AriaCheckboxButton>
-
-      {label && (
-        <label
-          htmlFor={inputId}
-          className={cx(
-            "col-start-2 row-start-1 text-secondary select-none",
-            sizes[size].label,
-          )}
-        >
-          {label}
-        </label>
-      )}
-
-      {description && (
-        <AriaText
-          slot="description"
-          className={cx(
-            "col-start-2 text-tertiary",
-            label ? "row-start-2" : "row-start-1",
-            sizes[size].description,
-          )}
-        >
-          {description}
-        </AriaText>
-      )}
     </AriaCheckboxField>
   );
 }

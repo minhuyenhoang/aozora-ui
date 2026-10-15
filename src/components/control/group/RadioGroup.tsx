@@ -18,7 +18,7 @@ export interface RadioGroupProps
 export function RadioGroup({
   children,
   className,
-  size = "sm",
+  size,
   ...props
 }: RadioGroupProps) {
   return (

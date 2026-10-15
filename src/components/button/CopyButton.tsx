@@ -1,21 +1,40 @@
-import { useClipboard } from "@hooks/useClipboard";
-import { Button } from "./Button";
 import { IconCheck, IconCopy } from "@tabler/icons-react";
+import { useClipboard } from "@hooks/useClipboard";
+import {
+  UtilityButton,
+  type UtilityButtonButtonProps,
+} from "./UtilityButton";
 
-export function CopyButton({ text }: { text: string }) {
+export interface CopyButtonProps extends Omit<
+  UtilityButtonButtonProps,
+  "icon" | "onPress"
+> {
+  /** The text copied to the clipboard when the button is pressed */
+  text: string;
+}
+
+export function CopyButton({
+  text,
+  color = "tertiary",
+  tooltip = "Copy",
+  ...props
+}: CopyButtonProps) {
   const { copied, copy } = useClipboard();
 
   return (
-    <Button
-      color="tertiary"
-      iconLeading={
+    <UtilityButton
+      {...props}
+      color={color}
+      // Also the accessible name, so it announces the copied state.
+      tooltip={copied ? "Copied" : tooltip}
+      icon={
         copied ? (
-          <IconCheck data-icon="leading" className="text-success-primary!" />
+          <IconCheck data-icon className="text-success-primary!" />
         ) : (
           IconCopy
         )
       }
-      onClick={() => copy(text)}
+      onPress={() => copy(text)}
     />
   );
 }
