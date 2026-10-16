@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import { IconMail } from "@tabler/icons-react";
 import { InputText } from "./InputText";
 
@@ -19,6 +19,7 @@ const meta = {
     description: { control: "text" },
     placeholder: { control: "text" },
     size: { control: "select", options: ["sm", "md", "lg"] },
+    isClearable: { control: "boolean" },
   },
   decorators: [
     (Story) => (
@@ -105,5 +106,73 @@ export const Invalid: Story = {
     await expect(
       canvas.getByText("We will only use this address for account updates."),
     ).toHaveAttribute("slot", "errorMessage");
+  },
+};
+
+export const Clearable: Story = {
+  args: { isClearable: true, onClear: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: /Email/ });
+
+    // The button only shows while there is something to clear.
+    await expect(
+      canvas.queryByRole("button", { name: "Clear" }),
+    ).not.toBeInTheDocument();
+    await userEvent.type(input, "olivia@example.com");
+
+    // Pressing it empties the input, calls back, and keeps the focus there.
+    await userEvent.click(canvas.getByRole("button", { name: "Clear" }));
+    await expect(input).toHaveValue("");
+    await expect(input).toHaveFocus();
+    await expect(args.onClear).toHaveBeenCalledOnce();
+    await expect(
+      canvas.queryByRole("button", { name: "Clear" }),
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const ClearableInvalid: Story = {
+  args: {
+    isClearable: true,
+    isInvalid: true,
+    defaultValue: "olivia@",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const clear = canvas.getByRole("button", { name: "Clear" });
+    const invalidIcon = canvasElement.querySelector(
+      ".tabler-icon-info-circle",
+    )!;
+
+    // The clear button moves aside for the invalid icon.
+    await expect(invalidIcon).toBeVisible();
+    await expect(clear.getBoundingClientRect().right).toBeLessThanOrEqual(
+      invalidIcon.getBoundingClientRect().left,
+    );
+  },
+};
+
+export const ClearablePassword: Story = {
+  args: {
+    ...Password.args,
+    isClearable: true,
+    defaultValue: "hunter2!",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const clear = canvas.getByRole("button", { name: "Clear" });
+    const toggle = canvas.getByRole("button", {
+      name: "Toggle password visibility",
+    });
+
+    // Both buttons fit at the end without overlapping.
+    await expect(clear.getBoundingClientRect().right).toBeLessThanOrEqual(
+      toggle.getBoundingClientRect().left,
+    );
+    await userEvent.click(clear);
+    await expect(
+      canvas.getByPlaceholderText("Enter your password"),
+    ).toHaveValue("");
   },
 };

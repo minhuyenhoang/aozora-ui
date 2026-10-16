@@ -135,3 +135,36 @@ export const ShowsRowRange: Story = {
     ).toBeInTheDocument();
   },
 };
+
+export const CustomLabels: Story = {
+  args: {
+    labels: {
+      rowsPerPage: "Số dòng mỗi trang",
+      firstPage: "Trang đầu",
+      lastPage: "Trang cuối",
+      range: (firstItem, lastItem, totalItems) =>
+        `${firstItem} - ${lastItem} trên ${totalItems}`,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // The labels passed in replace their defaults.
+    await expect(canvas.getByText("Số dòng mỗi trang")).toBeInTheDocument();
+    await expect(canvas.getByText("1 - 10 trên 2495")).toBeInTheDocument();
+    await expect(
+      canvas.getByRole("button", { name: "Trang đầu" }),
+    ).toBeDisabled();
+    await expect(
+      canvas.getByRole("button", { name: "Trang cuối" }),
+    ).toBeEnabled();
+
+    // The labels left out keep their defaults.
+    await expect(
+      canvas.getByRole("button", { name: "Next Page" }),
+    ).toBeEnabled();
+    await expect(
+      canvas.getByRole("combobox", { name: "Page" }),
+    ).toHaveValue("1");
+  },
+};

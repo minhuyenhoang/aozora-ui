@@ -9,7 +9,9 @@ import {
   IconEyeOff,
   IconHelpCircle,
   IconInfoCircle,
+  IconX,
 } from "@tabler/icons-react";
+import { useObjectRef } from "react-aria";
 import type { InputProps as AriaInputProps } from "react-aria-components";
 import {
   Button as AriaButton,
@@ -51,6 +53,8 @@ export interface InputBaseProps extends Omit<AriaInputProps, "size"> {
   groupRef?: Ref<HTMLDivElement>;
   /** Icon component to display on the left side of the input. */
   icon?: ComponentType<HTMLAttributes<HTMLOrSVGElement>>;
+  /** Shows a clear button at the end of the input, called when it is pressed. */
+  onClear?: () => void;
 }
 
 export function InputBase({
@@ -69,13 +73,19 @@ export function InputBase({
   inputClassName,
   iconClassName,
   type = "text",
+  onClear,
   ...inputProps
 }: InputBaseProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const inputRef = useObjectRef(ref);
 
   // Check if the input has a leading icon or tooltip
   const hasTrailingIcon = tooltip || isInvalid;
   const hasLeadingIcon = Icon;
+
+  // The clear button sits before the other trailing icons. The invalid icon
+  // only shows in the invalid state, so it moves aside for it then.
+  const isClearAfterIcon = tooltip || type === "password";
 
   // If the input is inside a `TextFieldContext`, use its context to simplify applying styles
   const context = useTextFieldContext();
@@ -91,6 +101,16 @@ export function InputBase({
       ),
       iconLeading: "left-3 size-4 stroke-[2.25px]",
       iconTrailing: "right-3",
+      clear: cx(
+        "right-3",
+        type !== "password" && "group-invalid/input:right-9",
+        isClearAfterIcon && "right-9",
+      ),
+      clearPadding: cx(
+        "pr-9",
+        type !== "password" && "group-invalid/input:pr-15",
+        isClearAfterIcon && "pr-15",
+      ),
       shortcut: "pr-1.5",
     },
     md: {
@@ -101,6 +121,16 @@ export function InputBase({
       ),
       iconLeading: "left-3 size-5",
       iconTrailing: "right-3",
+      clear: cx(
+        "right-3",
+        type !== "password" && "group-invalid/input:right-9",
+        isClearAfterIcon && "right-9",
+      ),
+      clearPadding: cx(
+        "pr-9",
+        type !== "password" && "group-invalid/input:pr-15",
+        isClearAfterIcon && "pr-15",
+      ),
       shortcut: "pr-2",
     },
     lg: {
@@ -111,6 +141,16 @@ export function InputBase({
       ),
       iconLeading: "left-3.5 size-5",
       iconTrailing: "right-3.5",
+      clear: cx(
+        "right-3.5",
+        type !== "password" && "group-invalid/input:right-9.5",
+        isClearAfterIcon && "right-9.5",
+      ),
+      clearPadding: cx(
+        "pr-9.5",
+        type !== "password" && "group-invalid/input:pr-15.5",
+        isClearAfterIcon && "pr-15.5",
+      ),
       shortcut: "pr-2.5",
     },
   });
@@ -157,17 +197,35 @@ export function InputBase({
       {/* Input field */}
       <AriaInput
         {...(inputProps as AriaInputProps)}
-        ref={ref}
+        ref={inputRef}
         required={isRequired}
         type={type === "password" && isPasswordVisible ? "text" : type}
         placeholder={placeholder}
         className={cx(
           "m-0 w-full bg-transparent text-primary ring-0 outline-hidden placeholder:text-placeholder autofill:rounded-lg autofill:text-primary disabled:cursor-not-allowed",
           sizes[inputSize].root,
+          onClear && sizes[inputSize].clearPadding,
           context?.inputClassName,
           inputClassName,
         )}
       />
+
+      {/* Clear button */}
+      {onClear && (
+        <AriaButton
+          aria-label="Clear"
+          onPress={() => {
+            onClear();
+            inputRef.current?.focus();
+          }}
+          className={cx(
+            "absolute flex cursor-pointer items-center justify-center text-fg-quaternary transition duration-100 ease-linear hover:text-fg-quaternary_hover focus:text-fg-quaternary_hover focus:outline-hidden",
+            sizes[inputSize].clear,
+          )}
+        >
+          <IconX className="size-4 stroke-[2.25px]" />
+        </AriaButton>
+      )}
 
       {/* Tooltip and help icon */}
       {tooltip && type !== "password" && (

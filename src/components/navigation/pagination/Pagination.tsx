@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import {
   IconArrowLeft,
   IconArrowRight,
@@ -26,7 +26,29 @@ export interface PaginationProps extends Partial<
 > {
   /** Whether the pagination buttons are rounded. */
   rounded?: boolean;
+  /** The text of the pagination, such as for translation. */
+  labels?: Partial<PaginationDefaultLabels>;
 }
+
+export interface PaginationDefaultLabels {
+  /** The text of the previous button, shown from the medium breakpoint up. */
+  previous: string;
+  /** The text of the next button, shown from the medium breakpoint up. */
+  next: string;
+  /** The current page out of the total, shown below the medium breakpoint. */
+  pageOf: (page: number, total: number) => ReactNode;
+}
+
+const DEFAULT_PAGINATION_LABELS: PaginationDefaultLabels = {
+  previous: "Previous",
+  next: "Next",
+  pageOf: (page, total) => (
+    <>
+      Page <span className="font-medium">{page}</span> of{" "}
+      <span className="font-medium">{total}</span>
+    </>
+  ),
+};
 
 export const PaginationItem = ({
   value,
@@ -103,9 +125,11 @@ export const PaginationDefault = ({
   rounded,
   page = 1,
   total = 10,
+  labels: labelsProp,
   ...props
 }: PaginationProps) => {
   const isDesktop = useBreakpoint("md");
+  const labels = { ...DEFAULT_PAGINATION_LABELS, ...labelsProp };
 
   return (
     <Pagination.Root
@@ -117,7 +141,7 @@ export const PaginationDefault = ({
       <div className="flex flex-1 justify-start">
         <Pagination.PrevTrigger asChild>
           <Button iconLeading={IconArrowLeft} color="secondary" size="sm">
-            {isDesktop ? "Previous" : undefined}
+            {isDesktop ? labels.previous : undefined}
           </Button>
         </Pagination.PrevTrigger>
       </div>
@@ -141,8 +165,7 @@ export const PaginationDefault = ({
             </div>
 
             <div className="flex justify-center text-sm whitespace-pre text-fg-secondary md:hidden">
-              Page <span className="font-medium">{currentPage}</span> of{" "}
-              <span className="font-medium">{total}</span>
+              {labels.pageOf(currentPage, total)}
             </div>
           </>
         )}
@@ -151,13 +174,15 @@ export const PaginationDefault = ({
       <div className="flex flex-1 justify-end">
         <Pagination.NextTrigger asChild>
           <Button iconTrailing={IconArrowRight} color="secondary" size="sm">
-            {isDesktop ? "Next" : undefined}
+            {isDesktop ? labels.next : undefined}
           </Button>
         </Pagination.NextTrigger>
       </div>
     </Pagination.Root>
   );
 };
+
+const DEFAULT_PAGE_SIZES = [10, 25, 50, 100];
 
 /** The most page options rendered in the list at once. */
 const MAX_PAGE_OPTIONS = 100;
@@ -204,12 +229,18 @@ function getPageOptions(page: number, total: number, query: string) {
 const showAllOptions = () => true;
 
 interface PageComboBoxProps {
+  label: string;
   page: number;
   total: number;
   onPageChange?: (page: number) => void;
 }
 
-function PageComboBox({ page, total, onPageChange }: PageComboBoxProps) {
+function PageComboBox({
+  label,
+  page,
+  total,
+  onPageChange,
+}: PageComboBoxProps) {
   const [inputValue, setInputValue] = useState(page.toString());
   const [syncedPage, setSyncedPage] = useState(page);
 
@@ -240,7 +271,7 @@ function PageComboBox({ page, total, onPageChange }: PageComboBoxProps) {
 
   return (
     <ComboBox
-      aria-label="Page"
+      aria-label={label}
       size="sm"
       placeholder=""
       shortcut={false}
@@ -261,7 +292,38 @@ function PageComboBox({ page, total, onPageChange }: PageComboBoxProps) {
   );
 }
 
-interface PaginationAdvancedProps {
+export interface PaginationAdvancedLabels {
+  /** The text before the page size select. */
+  rowsPerPage: string;
+  /** The accessible name of the page size select. */
+  pageSize: string;
+  /** The accessible name of the page input. */
+  page: string;
+  /** The accessible text before the total number of pages. */
+  of: string;
+  /** The accessible names of the page buttons. */
+  firstPage: string;
+  previousPage: string;
+  nextPage: string;
+  lastPage: string;
+  /** The range of rows shown, out of the total number of rows. */
+  range: (firstItem: number, lastItem: number, totalItems: number) => ReactNode;
+}
+
+const DEFAULT_PAGINATION_ADVANCED_LABELS: PaginationAdvancedLabels = {
+  rowsPerPage: "Rows per page",
+  pageSize: "Page Size",
+  page: "Page",
+  of: "of",
+  firstPage: "First Page",
+  previousPage: "Previous Page",
+  nextPage: "Next Page",
+  lastPage: "Last Page",
+  range: (firstItem, lastItem, totalItems) =>
+    `${firstItem} - ${lastItem} of ${totalItems}`,
+};
+
+export interface PaginationAdvancedProps {
   /** The current page. */
   page?: number;
   /** The total number of pages. */
@@ -269,11 +331,19 @@ interface PaginationAdvancedProps {
   /** The number of items per page. */
   pageSize?: number;
   /**
+   * The page sizes the user can choose from.
+   * @default [10, 25, 50, 100]
+   */
+  pageSizes?: number[];
+  /**
    * The total number of items, shown in the row range.
    * Defaults to `total * pageSize`, which overstates a partial last page.
    */
   totalItems?: number;
-  /** The alignment of the pagination. */
+  /**
+   * The alignment of the pagination. With `center`, the page size is on the
+   * left, the page controls in the middle and the row range on the right.
+   */
   align?: "space-between" | "center";
   /** The class name of the pagination component. */
   className?: string;
@@ -281,28 +351,31 @@ interface PaginationAdvancedProps {
   onPageChange?: (page: number) => void;
   /** The function to call when the page size changes. */
   onPageSizeChange?: (pageSize: number) => void;
+  /**
+   * The text of the pagination, such as for translation. Any label left out
+   * uses its English default.
+   */
+  labels?: Partial<PaginationAdvancedLabels>;
 }
 
 export const PaginationAdvanced = ({
   page = 1,
   total = 10,
   pageSize = 10,
+  pageSizes = DEFAULT_PAGE_SIZES,
   totalItems = total * pageSize,
   align = "space-between",
   onPageChange,
   className,
   onPageSizeChange,
+  labels: labelsProp,
 }: PaginationAdvancedProps) => {
+  const labels = { ...DEFAULT_PAGINATION_ADVANCED_LABELS, ...labelsProp };
   const firstItem = totalItems === 0 ? 0 : (page - 1) * pageSize + 1;
   const lastItem = Math.min(page * pageSize, totalItems);
 
   return (
-    <div
-      className={cx(
-        "border-t border-secondary px-4 py-3 md:px-6 md:pt-3 md:pb-4",
-        className,
-      )}
-    >
+    <div className={cx("pb-3 md:pb-4", className)}>
       <Pagination.Root
         page={page}
         total={total}
@@ -315,23 +388,19 @@ export const PaginationAdvanced = ({
         <div
           className={cx(
             "hidden items-center gap-2 md:flex",
-            align === "center" && "order-first",
+            // The side columns share the free space, which centres the middle.
+            align === "center" && "md:flex-1",
           )}
         >
           <span className="text-sm font-medium whitespace-nowrap text-secondary">
-            Rows per page
+            {labels.rowsPerPage}
           </span>
           <Select
-            aria-label="Page Size"
+            aria-label={labels.pageSize}
             value={pageSize}
             onChange={(value) => onPageSizeChange?.(value as number)}
             size="sm"
-            items={[
-              { label: "10", id: 10 },
-              { label: "25", id: 25 },
-              { label: "50", id: 50 },
-              { label: "100", id: 100 },
-            ]}
+            items={pageSizes.map(toOption)}
           >
             {(item) => (
               <SelectItem selectionIndicator="none" id={item.id}>
@@ -349,26 +418,31 @@ export const PaginationAdvanced = ({
           )}
         />
 
-        <div className="hidden text-sm font-medium whitespace-nowrap text-fg-secondary md:block">
-          {firstItem} - {lastItem} of {totalItems}
+        <div
+          className={cx(
+            "hidden text-sm font-medium whitespace-nowrap text-fg-secondary md:block",
+            align === "center" && "order-last text-right md:flex-1",
+          )}
+        >
+          {labels.range(firstItem, lastItem, totalItems)}
         </div>
 
         <div
           className={cx(
             "flex flex-1 items-center justify-between gap-4 md:ml-auto md:justify-end",
-            align === "center" && "md:justify-center",
+            align === "center" && "md:ml-0 md:flex-none md:justify-center",
           )}
         >
           <div className="flex gap-2">
             <Button
-              aria-label="First Page"
+              aria-label={labels.firstPage}
               iconLeading={IconChevronsLeft}
               color="secondary"
               size="sm"
               isDisabled={page === 1}
               onClick={() => onPageChange?.(1)}
             />
-            <Pagination.PrevTrigger asChild>
+            <Pagination.PrevTrigger asChild aria-label={labels.previousPage}>
               <Button
                 iconLeading={IconChevronLeft}
                 color="secondary"
@@ -379,19 +453,20 @@ export const PaginationAdvanced = ({
 
           <div className="flex items-center gap-2 text-sm font-medium whitespace-nowrap text-fg-secondary">
             <PageComboBox
+              label={labels.page}
               page={page}
               total={total}
               onPageChange={onPageChange}
             />
             <span aria-hidden="true">/</span>
             <span>
-              <span className="sr-only">of </span>
+              <span className="sr-only">{labels.of} </span>
               {total}
             </span>
           </div>
 
           <div className="flex gap-2">
-            <Pagination.NextTrigger asChild>
+            <Pagination.NextTrigger asChild aria-label={labels.nextPage}>
               <Button
                 iconTrailing={IconChevronRight}
                 color="secondary"
@@ -399,7 +474,7 @@ export const PaginationAdvanced = ({
               />
             </Pagination.NextTrigger>
             <Button
-              aria-label="Last Page"
+              aria-label={labels.lastPage}
               iconTrailing={IconChevronsRight}
               color="secondary"
               size="sm"

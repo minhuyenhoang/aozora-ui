@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useControlledState } from "react-stately/useControlledState";
 import type { TextFieldProps as AriaTextFieldProps } from "react-aria-components";
 import { DescriptionText } from "../base/DescriptionText";
 import { Label } from "../base/Label";
@@ -28,6 +29,10 @@ export interface InputTextProps
   description?: ReactNode;
   /** Whether to hide required indicator from label */
   hideRequiredIndicator?: boolean;
+  /** Shows a button at the end of the input that clears its value */
+  isClearable?: boolean;
+  /** Called after the clear button clears the value */
+  onClear?: () => void;
 }
 
 export function InputText({
@@ -47,12 +52,28 @@ export function InputText({
   wrapperClassName,
   tooltipClassName,
   type = "text",
+  isClearable,
+  onClear,
+  value: valueProp,
+  defaultValue,
+  onChange,
   ...props
 }: InputTextProps) {
+  const [value, setValue] = useControlledState(
+    valueProp,
+    defaultValue ?? "",
+    onChange,
+  );
+
+  const isClearVisible =
+    isClearable && value !== "" && !props.isDisabled && !props.isReadOnly;
+
   return (
     <TextField
       aria-label={!label ? placeholder : undefined}
       {...props}
+      value={value}
+      onChange={setValue}
       size={size}
       className={className}
     >
@@ -83,6 +104,12 @@ export function InputText({
               tooltipClassName,
               tooltip,
               type,
+              onClear: isClearVisible
+                ? () => {
+                    setValue("");
+                    onClear?.();
+                  }
+                : undefined,
             }}
           />
 
