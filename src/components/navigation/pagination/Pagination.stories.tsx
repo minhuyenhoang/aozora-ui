@@ -142,6 +142,7 @@ export const CustomLabels: Story = {
       rowsPerPage: "Số dòng mỗi trang",
       firstPage: "Trang đầu",
       lastPage: "Trang cuối",
+      nextPage: "Trang sau",
       range: (firstItem, lastItem, totalItems) =>
         `${firstItem} - ${lastItem} trên ${totalItems}`,
     },
@@ -158,11 +159,14 @@ export const CustomLabels: Story = {
     await expect(
       canvas.getByRole("button", { name: "Trang cuối" }),
     ).toBeEnabled();
+    await expect(
+      canvas.getByRole("button", { name: "Trang sau" }),
+    ).toBeEnabled();
 
     // The labels left out keep their defaults.
     await expect(
-      canvas.getByRole("button", { name: "Next Page" }),
-    ).toBeEnabled();
+      canvas.getByRole("button", { name: "Previous Page" }),
+    ).toBeDisabled();
     await expect(
       canvas.getByRole("combobox", { name: "Page" }),
     ).toHaveValue("1");

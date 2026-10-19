@@ -442,7 +442,7 @@ export const PaginationAdvanced = ({
               isDisabled={page === 1}
               onClick={() => onPageChange?.(1)}
             />
-            <Pagination.PrevTrigger asChild aria-label={labels.previousPage}>
+            <Pagination.PrevTrigger asChild ariaLabel={labels.previousPage}>
               <Button
                 iconLeading={IconChevronLeft}
                 color="secondary"
@@ -466,7 +466,7 @@ export const PaginationAdvanced = ({
           </div>
 
           <div className="flex gap-2">
-            <Pagination.NextTrigger asChild aria-label={labels.nextPage}>
+            <Pagination.NextTrigger asChild ariaLabel={labels.nextPage}>
               <Button
                 iconTrailing={IconChevronRight}
                 color="secondary"
@@ -482,6 +482,162 @@ export const PaginationAdvanced = ({
               onClick={() => onPageChange?.(total)}
             />
           </div>
+        </div>
+      </Pagination.Root>
+    </div>
+  );
+};
+
+export interface PaginationMinimalLabels {
+  /** The text of the previous button. */
+  previous: string;
+  /** The text of the next button. */
+  next: string;
+  /** The accessible names of the previous and next buttons. */
+  previousPage: string;
+  nextPage: string;
+  /** The text before the page size select. */
+  rowsPerPage: string;
+  /** The accessible name of the page size select. */
+  pageSize: string;
+  /** The current page out of the total, shown without `totalItems`. */
+  pageOf: (page: number, total: number) => ReactNode;
+  /** The range of rows shown out of `totalItems`, shown in place of the page. */
+  range: (firstItem: number, lastItem: number, totalItems: number) => ReactNode;
+}
+
+const DEFAULT_PAGINATION_MINIMAL_LABELS: PaginationMinimalLabels = {
+  previous: "Previous",
+  next: "Next",
+  previousPage: "Previous Page",
+  nextPage: "Next Page",
+  rowsPerPage: "Rows per page",
+  pageSize: "Page Size",
+  pageOf: (page, total) => `Page ${page} of ${total}`,
+  range: (firstItem, lastItem, totalItems) =>
+    `${firstItem} - ${lastItem} of ${totalItems}`,
+};
+
+export interface PaginationMinimalProps {
+  /** The current page. */
+  page?: number;
+  /** The total number of pages. */
+  total?: number;
+  /** The number of items per page. */
+  pageSize?: number;
+  /**
+   * The page sizes the user can choose from.
+   * @default [10, 25, 50, 100]
+   */
+  pageSizes?: number[];
+  /**
+   * The total number of items. When set, the range of rows shown replaces
+   * the current page out of the total.
+   */
+  totalItems?: number;
+  /**
+   * Where the page and page size sit from the medium breakpoint up. With
+   * `left` or `right`, the buttons are together on the other side. With
+   * `center`, they are between the buttons.
+   */
+  align?: "left" | "center" | "right";
+  /** The class name of the pagination component. */
+  className?: string;
+  /** The function to call when the page changes. */
+  onPageChange?: (page: number) => void;
+  /** The function to call when the page size changes. */
+  onPageSizeChange?: (pageSize: number) => void;
+  /**
+   * The text of the pagination, such as for translation. Any label left out
+   * uses its English default.
+   */
+  labels?: Partial<PaginationMinimalLabels>;
+}
+
+export const PaginationMinimal = ({
+  page = 1,
+  total = 10,
+  pageSize = 10,
+  pageSizes = DEFAULT_PAGE_SIZES,
+  totalItems,
+  align = "left",
+  onPageChange,
+  className,
+  onPageSizeChange,
+  labels: labelsProp,
+}: PaginationMinimalProps) => {
+  const labels = { ...DEFAULT_PAGINATION_MINIMAL_LABELS, ...labelsProp };
+
+  return (
+    <div
+      className={cx(
+        "border-t border-secondary px-4 py-3 md:px-6 md:pt-3 md:pb-4",
+        className,
+      )}
+    >
+      <Pagination.Root
+        page={page}
+        total={total}
+        onPageChange={onPageChange}
+        className={cx(
+          "flex items-center justify-between gap-3",
+          align !== "center" && "md:justify-start",
+        )}
+      >
+        <div className={cx(align === "center" && "flex flex-1 justify-start")}>
+          <Pagination.PrevTrigger asChild ariaLabel={labels.previousPage}>
+            <Button iconLeading={IconArrowLeft} color="secondary" size="sm">
+              {labels.previous}
+            </Button>
+          </Pagination.PrevTrigger>
+        </div>
+
+        <div
+          className={cx(
+            "flex items-center gap-3",
+            align === "right" && "md:order-first md:mr-auto",
+            align === "left" && "md:order-last md:ml-auto md:flex-row-reverse",
+          )}
+        >
+          <span className="text-sm font-medium whitespace-nowrap text-fg-secondary">
+            {totalItems === undefined
+              ? labels.pageOf(page, total)
+              : labels.range(
+                  totalItems === 0 ? 0 : (page - 1) * pageSize + 1,
+                  Math.min(page * pageSize, totalItems),
+                  totalItems,
+                )}
+          </span>
+          <Separator
+            orientation="vertical"
+            className="mx-1 h-4 self-auto bg-border-primary max-md:hidden"
+          />
+          <div className="hidden items-center gap-2 md:flex">
+            <span className="text-sm font-medium whitespace-nowrap text-secondary">
+              {labels.rowsPerPage}
+            </span>
+            <Select
+              aria-label={labels.pageSize}
+              value={pageSize}
+              onChange={(value) => onPageSizeChange?.(value as number)}
+              size="sm"
+              items={pageSizes.map(toOption)}
+            >
+              {(item) => (
+                <SelectItem selectionIndicator="none" id={item.id}>
+                  {item.label}
+                </SelectItem>
+              )}
+            </Select>
+          </div>
+        </div>
+
+        <div className={cx(align === "center" && "flex flex-1 justify-end")}>
+          <Pagination.NextTrigger asChild ariaLabel={labels.nextPage}>
+            <Button iconTrailing={IconArrowRight} color="secondary" size="sm">
+              {labels.next}
+            </Button>
+          </Pagination.NextTrigger>
         </div>
       </Pagination.Root>
     </div>
