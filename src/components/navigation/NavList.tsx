@@ -34,6 +34,24 @@ export const NavList = ({
   return (
     <ul className={cx("flex flex-col px-4 pt-5", className)}>
       {items.map((item, index) => {
+        // A divider with a label starts a section: a line, then the label.
+        // The first section has nothing above it to divide from.
+        if (item.divider && item.label) {
+          return (
+            <li key={index} className="w-full px-0.5 pt-2 pb-1 first:pt-0">
+              {index > 0 && <Separator />}
+              <p
+                className={cx(
+                  "px-2.5 text-xs font-semibold text-quaternary",
+                  index > 0 && "pt-3",
+                )}
+              >
+                {item.label}
+              </p>
+            </li>
+          );
+        }
+
         if (item.divider) {
           return (
             <li key={index} className="w-full px-0.5 py-2">
