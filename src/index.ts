@@ -70,6 +70,8 @@ export * from "./components/input/group/InputPrefix";
 
 export * from "./components/media/ThemePicker";
 
+export * from "./components/navigation/Breadcrumb";
+export * from "./components/navigation/Link";
 export * from "./components/navigation/NavItem";
 export * from "./components/navigation/NavList";
 export * from "./components/navigation/pagination/Pagination";
