@@ -50,7 +50,7 @@ const Modal = (props: AriaModalOverlayProps) => (
     className={(state) =>
       cx(
         // Clips the dialog to the rounded corners.
-        "w-full overflow-hidden rounded-xl bg-primary align-middle shadow-xl outline-hidden sm:rounded-2xl",
+        "w-full overflow-hidden rounded-xl border border-secondary bg-primary align-middle shadow-xl outline-hidden sm:rounded-2xl",
         // Max height based on parent's vertical padding
         "max-h-[calc(var(--visual-viewport-height)-var(--modal-pt)-var(--modal-pb))]",
         // Animations

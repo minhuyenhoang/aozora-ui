@@ -16,16 +16,34 @@ npm install aozora-ui
 With pnpm:
 
 ```bash
-pnpm add aozora-ui
+pnpm add aozora-ui \
+  react-aria react-aria-components react-stately \
+  @internationalized/date @tabler/icons-react \
+  @1771technologies/lytenyte-core react-advanced-cropper \
+  @tiptap/core @tiptap/pm @tiptap/react @tiptap/starter-kit \
+  @tiptap/extension-image @tiptap/extension-placeholder @tiptap/extension-text-align \
+  tailwindcss @tailwindcss/vite tailwindcss-react-aria-components tw-animate-css
 ```
 
 ## Usage
 
-Import the compiled stylesheet once in your application entry point:
+The components are styled with [Tailwind CSS](https://tailwindcss.com) v4,
+which your application needs to have installed. The stylesheet is Tailwind CSS
+source, so your Tailwind CSS builds it together with your own classes. Import
+it after Tailwind CSS in your main stylesheet:
 
-```tsx
-import "aozora-ui/styles.css";
+```css
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@import "tailwindcss";
+@import "aozora-ui/styles.css";
 ```
+
+This also makes the theme available to your own markup, such as `bg-primary`,
+`text-brand-secondary` or `border-secondary`.
+
+The first line loads the Inter font, which the theme uses. Without it, text
+falls back to the system font.
 
 Components and their TypeScript types are available from the package root:
 
@@ -68,7 +86,7 @@ npm pack --dry-run
 ```
 
 The build produces ESM and CommonJS bundles, TypeScript declarations, source maps,
-and compiled CSS in `dist`.
+and the Tailwind CSS source stylesheets in `dist`.
 
 ## Publishing
 
