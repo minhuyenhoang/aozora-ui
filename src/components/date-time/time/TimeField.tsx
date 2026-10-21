@@ -14,7 +14,7 @@ import { cx } from "@styles/utils";
 
 export interface TimeFieldProps
   extends
-    AriaTimeFieldProps<TimeValue>,
+    Omit<AriaTimeFieldProps<TimeValue>, "isRequired">,
     Pick<
       DateFieldBaseProps,
       | "ref"
@@ -32,8 +32,8 @@ export interface TimeFieldProps
   label?: string;
   /** Helper text displayed below the input. */
   description?: ReactNode;
-  /** Whether to hide the required indicator from the label. */
-  hideRequiredIndicator?: boolean;
+  /** Whether the field is required and shows the required indicator. */
+  required?: boolean;
   /** Class name for the input. */
   inputClassName?: string;
 }
@@ -45,7 +45,7 @@ export function TimeField({
   label,
   description,
   shortcut,
-  hideRequiredIndicator,
+  required,
   className,
   ref,
   groupRef,
@@ -59,6 +59,7 @@ export function TimeField({
   return (
     <AriaTimeField
       {...props}
+      isRequired={required}
       className={(state) =>
         cx(
           "group flex h-max w-full flex-col items-start justify-start gap-1.5",
@@ -69,14 +70,7 @@ export function TimeField({
       {({ isInvalid, state }) => (
         <>
           {label && (
-            <Label
-              isRequired={
-                hideRequiredIndicator
-                  ? !hideRequiredIndicator
-                  : state.isRequired
-              }
-              isInvalid={isInvalid}
-            >
+            <Label isRequired={state.isRequired}>
               {label}
             </Label>
           )}

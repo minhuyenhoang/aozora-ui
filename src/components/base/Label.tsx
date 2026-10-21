@@ -8,7 +8,6 @@ import { cx } from "@styles/utils";
 
 interface LabelProps extends AriaLabelProps {
   children: ReactNode;
-  isInvalid?: boolean;
   isRequired?: boolean;
   tooltip?: string;
   tooltipDescription?: string;
@@ -16,7 +15,6 @@ interface LabelProps extends AriaLabelProps {
 }
 
 export function Label({
-  isInvalid,
   isRequired,
   tooltip,
   tooltipDescription,
@@ -40,13 +38,9 @@ export function Label({
 
       <span
         className={cx(
-          "hidden text-brand-tertiary",
+          "hidden text-destructive-primary",
           isRequired && "block",
           typeof isRequired === "undefined" && "group-required:block",
-
-          isInvalid && "text-destructive-primary",
-          typeof isInvalid === "undefined" &&
-            "group-invalid:text-destructive-primary",
         )}
       >
         *

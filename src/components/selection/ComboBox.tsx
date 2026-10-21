@@ -13,13 +13,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { IconSearch } from "@tabler/icons-react";
+import { IconSearch, IconX } from "@tabler/icons-react";
 import type {
   ComboBoxProps as AriaComboBoxProps,
   GroupProps as AriaGroupProps,
   ListBoxProps as AriaListBoxProps,
 } from "react-aria-components";
 import {
+  Button as AriaButton,
   ComboBox as AriaComboBox,
   Group as AriaGroup,
   Input as AriaInput,
@@ -38,10 +39,18 @@ import { SelectContext } from "./select/SelectContext";
 
 interface ComboBoxProps
   extends
-    Omit<AriaComboBoxProps<SelectItemType>, "children" | "items">,
+    Omit<
+      AriaComboBoxProps<SelectItemType>,
+      "children" | "isRequired" | "items"
+    >,
     RefAttributes<HTMLDivElement>,
     SelectionCommonProps {
-  shortcut?: boolean;
+  /** Keyboard shortcut to display. */
+  shortcut?: string | boolean;
+  /** Shows a button at the end of the input that clears its value. */
+  isClearable?: boolean;
+  /** Called after the clear button clears the value. */
+  onClear?: () => void;
   items?: SelectItemType[];
   popoverClassName?: string;
   shortcutClassName?: string;
@@ -52,7 +61,9 @@ interface ComboBoxProps
 
 interface ComboBoxValueProps extends AriaGroupProps {
   size: "sm" | "md" | "lg";
-  shortcut: boolean;
+  shortcut?: string | boolean;
+  isClearable?: boolean;
+  onClear?: () => void;
   placeholder?: string;
   shortcutClassName?: string;
   icon?: FC | ReactNode;
@@ -64,6 +75,8 @@ interface ComboBoxValueProps extends AriaGroupProps {
 function ComboBoxValue({
   size,
   shortcut,
+  isClearable,
+  onClear,
   placeholder,
   shortcutClassName,
   icon: IconProp,
@@ -71,9 +84,11 @@ function ComboBoxValue({
   ...otherProps
 }: ComboBoxValueProps) {
   const state = useContext(ComboBoxStateContext);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const value = state?.selectedItem?.value || null;
   const inputValue = state?.inputValue || null;
+  const isClearVisible = isClearable && Boolean(inputValue);
 
   const first = inputValue?.split(value?.supportingText)?.[0] || "";
   const last = inputValue?.split(first)[1];
@@ -136,6 +151,7 @@ function ComboBoxValue({
         )}
 
         <AriaInput
+          ref={inputRef}
           placeholder={placeholder}
           className={cx(
             "z-10 w-full appearance-none bg-transparent text-transparent caret-alpha-black/90 placeholder:text-placeholder focus:outline-hidden disabled:cursor-not-allowed",
@@ -144,7 +160,28 @@ function ComboBoxValue({
         />
       </div>
 
-      {shortcut && (
+      {isClearVisible && (
+        <AriaButton
+          slot={null}
+          aria-label="Clear"
+          // Keep the control exposed while React Aria hides content outside
+          // the input and popover from assistive technology.
+          data-react-aria-top-layer
+          preventFocusOnPress
+          onPress={() => {
+            state?.setValue(null);
+            state?.setInputValue("");
+            state?.close();
+            inputRef.current?.focus();
+            onClear?.();
+          }}
+          className="flex shrink-0 cursor-pointer items-center justify-center text-fg-quaternary transition duration-100 ease-linear hover:text-fg-quaternary_hover focus:text-fg-quaternary_hover focus:outline-hidden"
+        >
+          <IconX className="size-4 stroke-[2.25px]" />
+        </AriaButton>
+      )}
+
+      {shortcut && !isClearVisible && (
         <div
           className={cx(
             "absolute inset-y-0.5 right-0.5 z-10 hidden items-center rounded-r-[inherit] bg-linear-to-r from-transparent to-bg-primary to-40% pl-8 md:flex",
@@ -156,7 +193,7 @@ function ComboBoxValue({
             className="pointer-events-none rounded px-1 py-px text-xs font-medium text-quaternary ring-1 ring-secondary select-none ring-inset"
             aria-hidden="true"
           >
-            ⌘K
+            {typeof shortcut === "string" ? shortcut : "⌘K"}
           </span>
         </div>
       )}
@@ -166,13 +203,15 @@ function ComboBoxValue({
 
 export function ComboBox({
   placeholder = "Search",
-  shortcut = true,
+  shortcut,
+  isClearable,
+  onClear,
   size = "md",
   children,
   items,
   shortcutClassName,
   icon,
-  hideRequiredIndicator,
+  required,
   ...otherProps
 }: ComboBoxProps) {
   const placeholderRef = useRef<HTMLDivElement>(null);
@@ -195,12 +234,12 @@ export function ComboBox({
 
   return (
     <SelectContext.Provider value={{ size }}>
-      <AriaComboBox menuTrigger="focus" {...otherProps}>
+      <AriaComboBox menuTrigger="focus" {...otherProps} isRequired={required}>
         {(state) => (
           <div className="flex flex-col gap-1.5">
             {otherProps.label && (
               <Label
-                isRequired={hideRequiredIndicator ? false : state.isRequired}
+                isRequired={state.isRequired}
                 tooltip={otherProps.tooltip}
               >
                 {otherProps.label}
@@ -211,6 +250,10 @@ export function ComboBox({
               ref={placeholderRef}
               placeholder={placeholder}
               shortcut={shortcut}
+              isClearable={
+                isClearable && !state.isDisabled && !state.isReadOnly
+              }
+              onClear={onClear}
               shortcutClassName={shortcutClassName}
               icon={icon}
               size={size}

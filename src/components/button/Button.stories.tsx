@@ -190,3 +190,41 @@ export const FocusRing: Story = {
     await expect(ring(second)).toBe(false);
   },
 };
+
+export const Disabled: Story = {
+  args: { isDisabled: true, className: "cursor-pointer" },
+  play: async ({ args, canvasElement }) => {
+    const button = within(canvasElement).getByRole("button", {
+      name: "Button",
+    });
+
+    // The not-allowed cursor wins over a class name that sets another one.
+    await expect(button).toBeDisabled();
+    await expect(button).toHaveClass("cursor-not-allowed");
+    await expect(getComputedStyle(button).cursor).toBe("not-allowed");
+
+    await userEvent.click(button, { pointerEventsCheck: 0 });
+    await expect(args.onPress).not.toHaveBeenCalled();
+  },
+};
+
+export const DisabledLink: Story = {
+  args: { isDisabled: true, color: "link-color" },
+  // Only the props a link takes, since the args are typed for a button.
+  render: ({ children, color, isDisabled, onPress }) => (
+    <Button href="/settings" {...{ color, isDisabled, onPress }}>
+      {children}
+    </Button>
+  ),
+  play: async ({ args, canvasElement }) => {
+    const link = within(canvasElement).getByRole("link", { name: "Button" });
+
+    // A link has no disabled attribute, but shows the same cursor.
+    await expect(link).toHaveAttribute("aria-disabled", "true");
+    await expect(getComputedStyle(link).cursor).toBe("not-allowed");
+    await expect(getComputedStyle(link).opacity).toBe("0.5");
+
+    await userEvent.click(link);
+    await expect(args.onPress).not.toHaveBeenCalled();
+  },
+};

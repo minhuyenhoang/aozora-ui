@@ -161,7 +161,7 @@ export function TimePicker({
   label,
   description,
   shortcut,
-  hideRequiredIndicator,
+  required,
   className,
   ref,
   groupRef,
@@ -196,6 +196,7 @@ export function TimePicker({
       shouldForceLeadingZeros={shouldForceLeadingZeros}
       isDisabled={isDisabled}
       isReadOnly={isReadOnly}
+      isRequired={required}
       className={(state) =>
         cx(
           "group flex h-max w-full flex-col items-start justify-start gap-1.5",
@@ -206,14 +207,7 @@ export function TimePicker({
       {({ isInvalid, state }) => (
         <>
           {label && (
-            <Label
-              isRequired={
-                hideRequiredIndicator
-                  ? !hideRequiredIndicator
-                  : state.isRequired
-              }
-              isInvalid={isInvalid}
-            >
+            <Label isRequired={state.isRequired}>
               {label}
             </Label>
           )}

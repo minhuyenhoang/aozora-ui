@@ -14,13 +14,14 @@ import { cx } from "@styles/utils";
 
 export interface InputNumberProps
   extends
-    InputNumberBaseProps,
+    Omit<InputNumberBaseProps, "isRequired">,
     Pick<AriaDateFieldProps<DateValue>, "granularity"> {
   /** Label text for the input */
   label?: string;
   /** Helper text displayed below the input */
   description?: ReactNode;
-  hideRequiredIndicator?: boolean;
+  /** Whether the field is required and shows the required indicator. */
+  required?: boolean;
 }
 
 export function InputNumber({
@@ -28,7 +29,7 @@ export function InputNumber({
   placeholder,
   label,
   description,
-  hideRequiredIndicator,
+  required,
   className,
   ref,
   groupRef,
@@ -40,6 +41,7 @@ export function InputNumber({
   return (
     <AriaNumberField
       {...props}
+      isRequired={required}
       className={(state) =>
         cx(
           "group flex h-max w-full flex-col items-start justify-start gap-1.5",
@@ -50,14 +52,7 @@ export function InputNumber({
       {({ isInvalid, isRequired }) => (
         <>
           {label && (
-            <Label
-              isRequired={
-                hideRequiredIndicator ? !hideRequiredIndicator : isRequired
-              }
-              isInvalid={isInvalid}
-            >
-              {label}
-            </Label>
+            <Label isRequired={isRequired}>{label}</Label>
           )}
 
           <InputNumberBase

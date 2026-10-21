@@ -19,6 +19,7 @@ const meta = {
     description: { control: "text" },
     placeholder: { control: "text" },
     size: { control: "select", options: ["sm", "md", "lg"] },
+    required: { control: "boolean" },
     isClearable: { control: "boolean" },
   },
   decorators: [
@@ -66,6 +67,21 @@ export const WithIcon: Story = {
     await expect(icon.getBoundingClientRect().right).toBeLessThan(
       input.getBoundingClientRect().right,
     );
+  },
+};
+
+export const Required: Story = {
+  args: { required: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByRole("textbox", { name: /Email/ }),
+    ).toBeRequired();
+    const indicator = canvas.getByText("*");
+
+    await expect(indicator).toBeVisible();
+    await expect(indicator).toHaveClass("text-destructive-primary");
   },
 };
 

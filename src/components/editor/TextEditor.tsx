@@ -489,7 +489,6 @@ export function TextEditor({
         <Label
           id={labelId}
           isRequired={isRequired ?? false}
-          isInvalid={isInvalid}
           tooltip={tooltip}
           // Clicking the label focuses the editor, like a native field.
           onClick={() => editor.commands.focus()}

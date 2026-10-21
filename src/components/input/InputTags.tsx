@@ -39,8 +39,8 @@ export interface InputTagsOuterProps {
   size?: "sm" | "md" | "lg";
   /** Placeholder text for the input field. */
   placeholder?: string;
-  /** Whether the field is required. */
-  isRequired?: boolean;
+  /** Whether the field is required and shows the required indicator. */
+  required?: boolean;
   /** Whether the field is disabled. */
   isDisabled?: boolean;
   /** Whether the field is in an invalid/error state. */
@@ -69,8 +69,6 @@ export interface InputTagsOuterProps {
   validate?: (value: string) => boolean;
   /** Optional className for the outer container. */
   className?: string;
-  /** Whether to hide the required indicator from the label. */
-  hideRequiredIndicator?: boolean;
 }
 
 export function InputTags({
@@ -79,7 +77,7 @@ export function InputTags({
   description,
   tooltip,
   placeholder,
-  isRequired,
+  required,
   isDisabled,
   isInvalid,
   allowDuplicates = false,
@@ -91,7 +89,6 @@ export function InputTags({
   onTagRemoved,
   validate,
   className,
-  hideRequiredIndicator,
 }: InputTagsOuterProps) {
   const isControlled = value !== undefined;
   const [inputValue, setInputValue] = useState("");
@@ -158,9 +155,7 @@ export function InputTags({
     >
       <div className="flex flex-col gap-1.5">
         {label && (
-          <Label isRequired={hideRequiredIndicator ? false : isRequired}>
-            {label}
-          </Label>
+          <Label isRequired={required}>{label}</Label>
         )}
 
         <InputBase
@@ -169,6 +164,7 @@ export function InputTags({
           placeholder={placeholder}
           isInvalid={isInvalid}
           isDisabled={isDisabled}
+          isRequired={required}
           value={inputValue}
           onChange={(e) => setInputValue(e.currentTarget.value)}
           onKeyDown={handleInputKeyDown}

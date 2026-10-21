@@ -24,7 +24,7 @@ const meta = {
     cols: { control: "number" },
     isDisabled: { control: "boolean" },
     isInvalid: { control: "boolean" },
-    isRequired: { control: "boolean" },
+    required: { control: "boolean" },
   },
   decorators: [
     (Story) => (

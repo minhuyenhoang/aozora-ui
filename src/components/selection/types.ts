@@ -29,6 +29,6 @@ export interface SelectionCommonProps {
   size?: "sm" | "md" | "lg";
   /** Placeholder text when no value is selected. */
   placeholder?: string;
-  /** Whether to hide the required indicator from the label. */
-  hideRequiredIndicator?: boolean;
+  /** Whether the field is required and shows the required indicator. */
+  required?: boolean;
 }

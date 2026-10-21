@@ -270,13 +270,17 @@ export function Button({
       buttonStyles.sizes[size].root,
       buttonStyles.colors[color].root,
       isLinkType && buttonStyles.sizes[size].linkRoot,
-      (loading || (href && (disabled || loading))) && "pointer-events-none",
+      // React Aria already ignores presses on a disabled button or link, so it
+      // keeps its pointer events and shows the not-allowed cursor.
+      loading && "pointer-events-none",
       // If in `loading` state, hide everything except the loading icon (and text if `showTextWhileLoading` is true).
       loading &&
         (showTextWhileLoading
           ? "[&>*:not([data-icon=loading]):not([data-text])]:hidden"
           : "[&>*:not([data-icon=loading])]:invisible"),
       className,
+      // Last, so it applies to links too, whatever the class name.
+      disabled && "cursor-not-allowed",
     ),
     children: commonChildren,
   };

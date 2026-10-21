@@ -9,7 +9,7 @@ import {
 } from "../base/input/TextareaBase";
 import { cx } from "@styles/utils";
 
-export interface TextareaProps extends AriaTextFieldProps {
+export interface TextareaProps extends Omit<AriaTextFieldProps, "isRequired"> {
   /** Label text for the textarea */
   label?: string;
   /** Helper text displayed below the textarea */
@@ -24,8 +24,8 @@ export interface TextareaProps extends AriaTextFieldProps {
   ref?: Ref<HTMLDivElement>;
   /** Ref for the textarea */
   textAreaRef?: TextareaBaseProps["ref"];
-  /** Whether to hide required indicator from label. */
-  hideRequiredIndicator?: boolean;
+  /** Whether the field is required and shows the required indicator. */
+  required?: boolean;
   /** Placeholder text. */
   placeholder?: string;
   /** Visible height of textarea in rows. */
@@ -39,7 +39,7 @@ export function Textarea({
   description,
   tooltip,
   textAreaRef,
-  hideRequiredIndicator,
+  required,
   textAreaClassName,
   placeholder,
   className,
@@ -51,6 +51,7 @@ export function Textarea({
   return (
     <AriaTextField
       {...props}
+      isRequired={required}
       className={(state) =>
         cx(
           "group flex h-max w-full flex-col items-start justify-start gap-1.5",
@@ -61,12 +62,7 @@ export function Textarea({
       {({ isInvalid, isRequired }) => (
         <>
           {label && (
-            <Label
-              isRequired={
-                hideRequiredIndicator ? !hideRequiredIndicator : isRequired
-              }
-              tooltip={tooltip}
-            >
+            <Label isRequired={isRequired} tooltip={tooltip}>
               {label}
             </Label>
           )}

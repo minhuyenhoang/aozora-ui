@@ -20,6 +20,7 @@ const meta = {
     label: { control: "text" },
     description: { control: "text" },
     size: { control: "select", options: ["sm", "md", "lg"] },
+    required: { control: "boolean" },
   },
   decorators: [
     (Story) => (

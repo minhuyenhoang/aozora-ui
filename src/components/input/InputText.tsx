@@ -8,7 +8,7 @@ import { TextField } from "../base/input/TextField";
 
 export interface InputTextProps
   extends
-    AriaTextFieldProps,
+    Omit<AriaTextFieldProps, "isRequired">,
     Pick<
       InputBaseProps,
       | "ref"
@@ -27,8 +27,8 @@ export interface InputTextProps
   label?: string;
   /** Helper text displayed below the input */
   description?: ReactNode;
-  /** Whether to hide required indicator from label */
-  hideRequiredIndicator?: boolean;
+  /** Whether the field is required and shows the required indicator */
+  required?: boolean;
   /** Shows a button at the end of the input that clears its value */
   isClearable?: boolean;
   /** Called after the clear button clears the value */
@@ -42,7 +42,7 @@ export function InputText({
   label,
   description,
   shortcut,
-  hideRequiredIndicator,
+  required,
   className,
   ref,
   groupRef,
@@ -72,6 +72,7 @@ export function InputText({
     <TextField
       aria-label={!label ? placeholder : undefined}
       {...props}
+      isRequired={required}
       value={value}
       onChange={setValue}
       size={size}
@@ -80,14 +81,7 @@ export function InputText({
       {({ isRequired, isInvalid }) => (
         <>
           {label && (
-            <Label
-              isRequired={
-                hideRequiredIndicator ? !hideRequiredIndicator : isRequired
-              }
-              isInvalid={isInvalid}
-            >
-              {label}
-            </Label>
+            <Label isRequired={isRequired}>{label}</Label>
           )}
 
           <InputBase

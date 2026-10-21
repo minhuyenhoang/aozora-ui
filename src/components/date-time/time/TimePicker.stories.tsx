@@ -27,7 +27,7 @@ const meta = {
     shouldForceLeadingZeros: { control: "boolean" },
     isDisabled: { control: "boolean" },
     isReadOnly: { control: "boolean" },
-    isRequired: { control: "boolean" },
+    required: { control: "boolean" },
     isInvalid: { control: "boolean" },
   },
   decorators: [

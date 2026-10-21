@@ -24,7 +24,7 @@ const meta = {
     granularity: { control: "select", options: ["day", "hour", "minute", "second"] },
     isDisabled: { control: "boolean" },
     isReadOnly: { control: "boolean" },
-    isRequired: { control: "boolean" },
+    required: { control: "boolean" },
     isInvalid: { control: "boolean" },
   },
   decorators: [
@@ -79,14 +79,14 @@ export const Empty: Story = {
 };
 
 export const Required: Story = {
-  args: { isRequired: true },
+  args: { required: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByRole("spinbutton", { name: /month/ })).toBeVisible();
-    // A required field marks its label with an asterisk.
     await expect(
-      canvasElement.querySelector("[data-label]"),
-    ).toHaveTextContent(/Start date\s*\*/);
+      canvas.getByRole("spinbutton", { name: /month/ }),
+    ).toBeVisible();
+    // A required field marks its label with an asterisk.
+    await expect(canvas.getByText("*")).toBeVisible();
   },
 };

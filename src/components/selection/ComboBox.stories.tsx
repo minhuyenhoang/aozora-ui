@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, screen, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, screen, userEvent, waitFor, within } from "storybook/test";
 import { IconCode, IconPalette, IconSpeakerphone } from "@tabler/icons-react";
 import { ComboBox } from "./ComboBox";
 import { SelectItem } from "./select/SelectItem";
@@ -44,6 +44,8 @@ const meta = {
     description: { control: "text" },
     placeholder: { control: "text" },
     size: { control: "select", options: ["sm", "md", "lg"] },
+    required: { control: "boolean" },
+    isClearable: { control: "boolean" },
   },
   decorators: [
     (Story) => (
@@ -61,6 +63,8 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByRole("combobox", { name: /Team/ });
+
+    await expect(canvas.queryByText("⌘K")).not.toBeInTheDocument();
 
     // Focusing the input opens the list with every team.
     await userEvent.click(input);
@@ -82,5 +86,38 @@ export const Default: Story = {
     // and closes the list.
     await expect(input).toHaveValue("Engineering Web and platform");
     await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
+  },
+};
+
+export const Clearable: Story = {
+  args: { isClearable: true, onClear: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("combobox", { name: /Team/ });
+
+    await expect(
+      canvas.queryByRole("button", { name: "Clear" }),
+    ).not.toBeInTheDocument();
+    await userEvent.type(input, "eng");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Clear" }));
+    await expect(input).toHaveValue("");
+    await expect(input).toHaveFocus();
+    await expect(args.onClear).toHaveBeenCalledOnce();
+    await expect(
+      canvas.queryByRole("button", { name: "Clear" }),
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const Required: Story = {
+  args: { required: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByRole("combobox", { name: /Team/ }),
+    ).toBeRequired();
+    await expect(canvas.getByText("*")).toBeVisible();
   },
 };

@@ -24,7 +24,7 @@ const meta = {
     size: { control: "select", options: ["sm", "md", "lg"] },
     isDisabled: { control: "boolean" },
     isInvalid: { control: "boolean" },
-    isRequired: { control: "boolean" },
+    required: { control: "boolean" },
     isLoading: { control: "boolean" },
     allowsMultiple: { control: "boolean" },
   },

@@ -14,7 +14,10 @@ import { SelectValue } from "./SelectValue";
 
 export interface SelectProps
   extends
-    Omit<AriaSelectProps<SelectItemType>, "children" | "items">,
+    Omit<
+      AriaSelectProps<SelectItemType>,
+      "children" | "isRequired" | "items"
+    >,
     RefAttributes<HTMLDivElement>,
     SelectionCommonProps {
   items?: SelectItemType[];
@@ -32,7 +35,7 @@ export function Select({
   label,
   description,
   tooltip,
-  hideRequiredIndicator,
+  required,
   className,
   ...rest
 }: SelectProps) {
@@ -40,6 +43,7 @@ export function Select({
     <SelectContext.Provider value={{ size }}>
       <AriaSelect
         {...rest}
+        isRequired={required}
         className={(state) =>
           cx(
             "flex flex-col gap-1.5",
@@ -50,10 +54,7 @@ export function Select({
         {(state) => (
           <>
             {label && (
-              <Label
-                isRequired={hideRequiredIndicator ? false : state.isRequired}
-                tooltip={tooltip}
-              >
+              <Label isRequired={state.isRequired} tooltip={tooltip}>
                 {label}
               </Label>
             )}

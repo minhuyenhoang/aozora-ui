@@ -1,4 +1,4 @@
-import { type ReactNode, type Ref, useId } from "react";
+import { type ReactNode, type Ref, useContext, useId } from "react";
 import { IconCheck, IconMinus } from "@tabler/icons-react";
 import {
   CheckboxButton as AriaCheckboxButton,
@@ -6,6 +6,7 @@ import {
   type CheckboxFieldProps as AriaCheckboxFieldProps,
   Text as AriaText,
 } from "react-aria-components";
+import { CheckboxGroupContext } from "./group/CheckboxGroupContext";
 import { cx } from "@styles/utils";
 
 export interface CheckboxProps extends AriaCheckboxFieldProps {
@@ -22,7 +23,10 @@ export function Checkbox({
   className,
   ...checkboxFieldProps
 }: CheckboxProps) {
+  const context = useContext(CheckboxGroupContext);
   const labelId = useId();
+
+  size = context?.size ?? size;
 
   const sizes = {
     sm: {

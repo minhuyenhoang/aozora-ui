@@ -22,10 +22,8 @@ interface InputFileProps {
   isDisabled?: boolean;
   /** Whether the input is invalid. */
   isInvalid?: boolean;
-  /** Whether the input is required. */
-  isRequired?: boolean;
-  /** Whether to hide the required indicator from the label. */
-  hideRequiredIndicator?: boolean;
+  /** Whether the input is required and shows the required indicator. */
+  required?: boolean;
   /** Specifies what mime type of files are allowed. */
   acceptedFileTypes?: string[];
   /** Whether multiple files can be selected. */
@@ -50,8 +48,7 @@ export const InputFile = ({
   placeholder = "Choose a file",
   isDisabled,
   isInvalid,
-  isRequired,
-  hideRequiredIndicator,
+  required,
   isLoading,
   acceptedFileTypes,
   allowsMultiple,
@@ -91,8 +88,7 @@ export const InputFile = ({
         description={description}
         isDisabled={isDisabled}
         isInvalid={isInvalid}
-        isRequired={isRequired}
-        hideRequiredIndicator={hideRequiredIndicator}
+        required={required}
         className={className}
         trailingAddon={
           <Button
@@ -124,6 +120,7 @@ export const InputFile = ({
         ref={inputRef}
         type="file"
         className="hidden"
+        required={required}
         disabled={isDisabled}
         accept={acceptedFileTypes?.toString()}
         multiple={allowsMultiple}

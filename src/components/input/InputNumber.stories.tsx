@@ -22,6 +22,7 @@ const meta = {
     minValue: { control: "number" },
     maxValue: { control: "number" },
     size: { control: "select", options: ["sm", "md", "lg"] },
+    required: { control: "boolean" },
   },
   decorators: [
     (Story) => (

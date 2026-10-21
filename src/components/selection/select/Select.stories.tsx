@@ -44,6 +44,7 @@ const meta = {
     description: { control: "text" },
     placeholder: { control: "text" },
     size: { control: "select", options: ["sm", "md", "lg"] },
+    required: { control: "boolean" },
   },
   decorators: [
     (Story) => (

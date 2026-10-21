@@ -7,7 +7,7 @@ import { InputPrefix } from "./InputPrefix";
 import { cx, sortCx } from "@styles/utils";
 
 // `${string}ClassName` is used to omit any className prop that ends with a `ClassName` suffix
-interface InputGroupProps extends TextFieldProps {
+interface InputGroupProps extends Omit<TextFieldProps, "isRequired"> {
   /** A prefix text that is displayed in the same box as the input.*/
   prefix?: string;
   /** A leading addon that is displayed with visual separation from the input. */
@@ -22,8 +22,8 @@ interface InputGroupProps extends TextFieldProps {
   label?: string;
   /** Helper text displayed below the input */
   description?: ReactNode;
-  /** Whether to hide the required indicator from the label. */
-  hideRequiredIndicator?: boolean;
+  /** Whether the field is required and shows the required indicator. */
+  required?: boolean;
 }
 
 export function InputGroup({
@@ -33,7 +33,7 @@ export function InputGroup({
   trailingAddon,
   label,
   description,
-  hideRequiredIndicator,
+  required,
   children,
   ...props
 }: InputGroupProps) {
@@ -93,13 +93,12 @@ export function InputGroup({
         "group-has-[&>select]:bg-transparent group-has-[&>select]:shadow-none group-has-[&>select]:ring-0 group-has-[&>select]:focus-within:ring-0",
       )}
       {...props}
+      isRequired={required}
     >
       {({ isDisabled, isInvalid, isRequired }) => (
         <>
           {label && (
-            <Label isRequired={hideRequiredIndicator ? false : isRequired}>
-              {label}
-            </Label>
+            <Label isRequired={isRequired}>{label}</Label>
           )}
 
           <div

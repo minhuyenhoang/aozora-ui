@@ -93,6 +93,8 @@ export function UtilityButton({
       size === "xs" ? "*:data-icon:size-4" : "*:data-icon:size-5",
 
       className,
+      // Last, so it applies to links too, whatever the class name.
+      isDisabled && "cursor-not-allowed",
     ),
     children: (
       <>

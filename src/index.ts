@@ -33,6 +33,7 @@ export * from "./components/control/Radio";
 export * from "./components/control/ScrollArea";
 export * from "./components/control/Slider";
 export * from "./components/control/Toggle";
+export * from "./components/control/group/CheckboxGroup";
 export * from "./components/control/group/RadioGroup";
 export * from "./components/control/group/ToolbarGroup";
 export * from "./components/control/toolbar/Toolbar";

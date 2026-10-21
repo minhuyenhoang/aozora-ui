@@ -23,7 +23,7 @@ const meta = {
     size: { control: "select", options: ["sm", "md", "lg"] },
     maxTags: { control: "number" },
     allowDuplicates: { control: "boolean" },
-    isRequired: { control: "boolean" },
+    required: { control: "boolean" },
     isDisabled: { control: "boolean" },
     isInvalid: { control: "boolean" },
   },
